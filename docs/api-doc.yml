@@ -1,0 +1,147 @@
+openapi: 3.0.0
+info:
+  description: |
+    Bill microservice API
+  version: "1.0.0"
+  title: Bill Service
+  contact:
+    email: anfelees3@gmail.com
+servers:
+  - url: 'http://localhost:8083'
+paths:
+  /logistic/api-version:
+    get:
+      summary: Get app version
+      operationId: appVersion
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiVersionMessage'
+  /logistic/order:
+    post:
+      summary: Send order
+      operationId: sendOrder
+      responses:
+        '200':
+          description: Operation Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+      requestBody:
+        $ref: '#/components/requestBodies/FullOrder'
+components:
+  schemas:
+    ApiVersionMessage:
+      type: object
+      properties:
+        version:
+          type: string
+          description: Version
+    FullOrder:
+      allOf:
+        - $ref: '#/components/schemas/Order'
+        - type: object
+          required:
+            - orderId
+            - totalOrderAmount
+          properties:
+            orderId:
+              type: integer
+              format: int64
+              description: Order identification privided by checkout service
+            totalOrderAmount:
+              type: number
+              format: double
+              description: Total order amount
+    Order:
+      type: object
+      required:
+        - clientId
+        - date
+        - direction
+        - products
+      properties:
+        clientId:
+          type: integer
+          format: int64
+          description: Internal customer identification
+        date:
+          type: string
+          format: date-time
+          description: Order creation date
+        direction:
+          type: string
+          description: User address
+        products:
+          type: array
+          items:
+            $ref: '#/components/schemas/Product'
+    Product:
+      type: object
+      required:
+        - id
+        - quantity
+        - cost
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Product Id
+        quantity:
+          type: integer
+          format: int32
+          description: Product quantity
+        cost:
+          type: number
+          format: double
+          description: Result of multiplying the unit price by the quantity
+    BasicResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: Operation status
+        message:
+          type: string
+          description: Service message
+    DefaultErrorResponse:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+          description: Date of event
+        path:
+          type: string
+          description: Resource path
+        status:
+          type: integer
+          format: int32
+          description: Http code
+        error:
+          type: string
+          description: Error detail
+        message:
+          type: string
+          description: Error message
+        requestId:
+          type: string
+          description: Request id
+  requestBodies:
+    FullOrder:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/FullOrder'
+      description: Order object that needs to be send
+      required: true

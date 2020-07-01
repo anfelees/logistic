@@ -1,0 +1,13 @@
+app:
+  version: 1.0.0
+server:
+  port: 8083
+spring:
+  webflux:
+    base-path: /logistic
+db:
+  host: localhost
+  username: postgres
+  password: mysecretpassword
+  port: 5432
+  database: logistic
